@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Infinity Sport | Catálogo</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <span class="brand-mark">I</span>
+          <div class="brand-text">
+            <span class="brand-name">Infinity Sport</span>
+            <span class="brand-tagline">Ropa deportiva para todos los días</span>
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="#catalogo">Catálogo</a>
+          <a href="#como-comprar">Cómo comprar</a>
+          <a href="#contacto">Contacto</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <p class="hero-label">Nueva selección</p>
+          <h1>Infinity Sport · Ropa deportiva</h1>
+          <p class="hero-subtitle">
+            Elegí tus prendas favoritas y pedime por WhatsApp o Instagram.
+          </p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#catalogo">Ver catálogo</a>
+            <a class="btn ghost" href="#contacto">Hablar ahora</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="catalogo" class="catalog">
+        <header class="catalog-header">
+          <div>
+            <h2>Catálogo</h2>
+            <p>Elegí por categoría y encontrá tu estilo.</p>
+          </div>
+          <div class="filters">
+            <select id="filterCategoria">
+              <option value="todas">Todas las categorías</option>
+            </select>
+            <select id="filterTalle">
+              <option value="todos">Todos los talles</option>
+            </select>
+          </div>
+        </header>
+
+        <div id="productosGrid" class="grid"></div>
+
+        <p id="sinResultados" class="empty-state" hidden>
+          No hay productos para este filtro. Probá cambiando la categoría o el
+          talle.
+        </p>
+      </section>
+
+      <section id="como-comprar" class="how-to">
+        <h2>Cómo comprar</h2>
+        <ol>
+          <li>
+            Mirá el catálogo y anotá el
+            <strong>nombre</strong> de la prenda que te gusta.
+          </li>
+          <li>
+            Escribime por <strong>WhatsApp</strong> o
+            <strong>Instagram</strong> con el nombre, talle y color.
+          </li>
+          <li>
+            Coordinamos <strong>pago</strong> y <strong>entrega</strong> (a
+            acordar).
+          </li>
+        </ol>
+      </section>
+
+      <section id="contacto" class="contact">
+        <h2>Contacto</h2>
+        <p>
+          Podés escribirme por WhatsApp o Instagram. Adaptá estos links con tus
+          datos:
+        </p>
+        <div class="contact-links">
+          <a
+            class="btn primary"
+            href="https://wa.me/5491112345678?text=Hola%2C%20vi%20tu%20cat%C3%A1logo%20de%20ropa"
+            target="_blank"
+            rel="noopener"
+          >
+            WhatsApp
+          </a>
+          <a
+            class="btn ghost"
+            href="https://instagram.com/"
+            target="_blank"
+            rel="noopener"
+          >
+            Instagram
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>© <span id="year"></span> Mi emprendimiento</span>
+      <span class="footer-note">Hecho con cariño.</span>
+    </footer>
+
+    <script src="productos.js"></script>
+    <script>
+      // Año automático en el footer
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      // Render de productos con filtros
+      const grid = document.getElementById("productosGrid");
+      const filterCategoria = document.getElementById("filterCategoria");
+      const filterTalle = document.getElementById("filterTalle");
+      const sinResultados = document.getElementById("sinResultados");
+
+      function initFiltros(productos) {
+        const categorias = [
+          ...new Set(productos.map((p) => p.categoria || "Otros")),
+        ];
+        const talles = [
+          ...new Set(productos.flatMap((p) => p.talles || [])),
+        ];
+
+        categorias.forEach((c) => {
+          const opt = document.createElement("option");
+          opt.value = c;
+          opt.textContent = c;
+          filterCategoria.appendChild(opt);
+        });
+
+        talles.forEach((t) => {
+          const opt = document.createElement("option");
+          opt.value = t;
+          opt.textContent = t;
+          filterTalle.appendChild(opt);
+        });
+      }
+
+      function creaTarjeta(producto) {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        const img = document.createElement("img");
+        img.loading = "lazy";
+        img.alt = producto.nombre;
+        img.src = producto.imagen
+          ? "img/" + producto.imagen
+          : "https://via.placeholder.com/600x800?text=Foto+prenda";
+
+        const body = document.createElement("div");
+        body.className = "card-body";
+
+        const title = document.createElement("h3");
+        title.textContent = producto.nombre;
+
+        const meta = document.createElement("p");
+        meta.className = "card-meta";
+        const partes = [];
+        if (producto.categoria) partes.push(producto.categoria);
+        if (producto.talles?.length) partes.push("Talles " + producto.talles.join(", "));
+        if (producto.color) partes.push(producto.color);
+        meta.textContent = partes.join(" · ");
+
+        const priceRow = document.createElement("div");
+        priceRow.className = "card-price-row";
+
+        const price = document.createElement("span");
+        price.className = "card-price";
+        price.textContent = producto.precio
+          ? "$ " + producto.precio.toLocaleString("es-AR")
+          : "Consultar";
+
+        const note = document.createElement("span");
+        note.className = "card-note";
+        note.textContent = "Escribime para consultar stock";
+
+        priceRow.appendChild(price);
+        priceRow.appendChild(note);
+
+        body.appendChild(title);
+        body.appendChild(meta);
+        body.appendChild(priceRow);
+
+        card.appendChild(img);
+        card.appendChild(body);
+
+        return card;
+      }
+
+      function aplicarFiltros() {
+        const categoria = filterCategoria.value;
+        const talle = filterTalle.value;
+
+        grid.innerHTML = "";
+        let filtrados = window.PRODUCTOS || [];
+
+        if (categoria !== "todas") {
+          filtrados = filtrados.filter((p) => p.categoria === categoria);
+        }
+        if (talle !== "todos") {
+          filtrados = filtrados.filter((p) => p.talles?.includes(talle));
+        }
+
+        if (!filtrados.length) {
+          sinResultados.hidden = false;
+          return;
+        }
+
+        sinResultados.hidden = true;
+        filtrados.forEach((p) => grid.appendChild(creaTarjeta(p)));
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!window.PRODUCTOS) window.PRODUCTOS = [];
+        initFiltros(window.PRODUCTOS);
+        aplicarFiltros();
+      });
+
+      filterCategoria.addEventListener("change", aplicarFiltros);
+      filterTalle.addEventListener("change", aplicarFiltros);
+    </script>
+  </body>
+</html>
+
