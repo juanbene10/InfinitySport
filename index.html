@@ -16,7 +16,11 @@
     <header class="topbar">
       <div class="topbar-inner">
         <div class="brand">
-          <span class="brand-mark">I</span>
+          <img
+            src="img/logo-infinitysport.png"
+            alt="Infinity Sport logo"
+            class="brand-logo"
+          />
           <div class="brand-text">
             <span class="brand-name">Infinity Sport</span>
             <span class="brand-tagline">Ropa deportiva para todos los días</span>
@@ -114,6 +118,43 @@
       </section>
     </main>
 
+    <div id="galleryOverlay" class="gallery-overlay" hidden>
+      <div id="galleryBackdrop" class="gallery-backdrop"></div>
+      <div class="gallery-dialog">
+        <button
+          id="galleryClose"
+          type="button"
+          class="gallery-close"
+          aria-label="Cerrar galería"
+        >
+          ×
+        </button>
+        <div class="gallery-image-wrapper">
+          <button
+            id="galleryPrev"
+            type="button"
+            class="gallery-arrow gallery-arrow-left"
+            aria-label="Ver foto anterior"
+          >
+            ‹
+          </button>
+          <img id="galleryImage" src="" alt="Foto de producto Infinity Sport" />
+          <button
+            id="galleryNext"
+            type="button"
+            class="gallery-arrow gallery-arrow-right"
+            aria-label="Ver foto siguiente"
+          >
+            ›
+          </button>
+        </div>
+        <div class="gallery-footer">
+          <span id="galleryCounter" class="gallery-counter"></span>
+          <span class="gallery-hint">Click fuera, ESC o ✕ para cerrar</span>
+        </div>
+      </div>
+    </div>
+
     <footer class="footer">
       <span>© <span id="year"></span> Mi emprendimiento</span>
       <span class="footer-note">Hecho con cariño.</span>
@@ -129,6 +170,77 @@
       const filterCategoria = document.getElementById("filterCategoria");
       const filterTalle = document.getElementById("filterTalle");
       const sinResultados = document.getElementById("sinResultados");
+
+      // Galería de imágenes
+      const overlay = document.getElementById("galleryOverlay");
+      const overlayBackdrop = document.getElementById("galleryBackdrop");
+      const overlayImg = document.getElementById("galleryImage");
+      const overlayCounter = document.getElementById("galleryCounter");
+      const prevBtn = document.getElementById("galleryPrev");
+      const nextBtn = document.getElementById("galleryNext");
+      const closeBtn = document.getElementById("galleryClose");
+
+      let galeriaActual = [];
+      let galeriaIndex = 0;
+
+      function actualizarGaleria() {
+        if (!galeriaActual.length) return;
+        overlayImg.src = "img/" + galeriaActual[galeriaIndex];
+        overlayCounter.textContent = `${galeriaIndex + 1} / ${galeriaActual.length}`;
+      }
+
+      function abrirGaleria(producto) {
+        const listaImagenes =
+          (producto.imagenes && producto.imagenes.length
+            ? producto.imagenes
+            : [producto.imagen]).filter(Boolean);
+        if (!listaImagenes.length) return;
+        galeriaActual = listaImagenes;
+        galeriaIndex = 0;
+        actualizarGaleria();
+        overlay.hidden = false;
+        document.body.style.overflow = "hidden";
+      }
+
+      function cerrarGaleria() {
+        overlay.hidden = true;
+        document.body.style.overflow = "";
+      }
+
+      function moverGaleria(delta) {
+        if (!galeriaActual.length) return;
+        galeriaIndex =
+          (galeriaIndex + delta + galeriaActual.length) % galeriaActual.length;
+        actualizarGaleria();
+      }
+
+      prevBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        moverGaleria(-1);
+      });
+
+      nextBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        moverGaleria(1);
+      });
+
+      closeBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        cerrarGaleria();
+      });
+
+      overlayBackdrop.addEventListener("click", cerrarGaleria);
+
+      document.addEventListener("keydown", (event) => {
+        if (overlay.hidden) return;
+        if (event.key === "Escape") {
+          cerrarGaleria();
+        } else if (event.key === "ArrowRight") {
+          moverGaleria(1);
+        } else if (event.key === "ArrowLeft") {
+          moverGaleria(-1);
+        }
+      });
 
       function initFiltros(productos) {
         const categorias = [
@@ -200,6 +312,8 @@
 
         card.appendChild(img);
         card.appendChild(body);
+
+        card.addEventListener("click", () => abrirGaleria(producto));
 
         return card;
       }
